@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DesafioFoton</string>
+    <string name="label_popular_movies">Popular Movies</string>
+    <string name="minutes">%d minutes</string>
+    <string name="load_more">Load More</string>
+    <string name="search_hint">Movie Name</string>
+    <string name="label_genre">Genre</string>
+    <string name="label_search">Search</string>
+    <string name="quotes" translatable="false">\"%s\"</string>
 </resources>

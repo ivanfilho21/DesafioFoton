@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DesafioFoton</string>
+    <string name="label_popular_movies">Filmes Populares</string>
+    <string name="minutes">%d minutos</string>
+    <string name="load_more">Carregar Mais</string>
+    <string name="search_hint">Nome do Filme</string>
+    <string name="label_genre">Gênero</string>
+    <string name="label_search">Busca</string>
+</resources>
