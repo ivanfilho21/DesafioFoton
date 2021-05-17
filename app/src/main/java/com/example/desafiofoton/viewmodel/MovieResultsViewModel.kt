@@ -10,9 +10,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MovieViewModel(repository: MovieRepository) : ViewModel() {
+class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
     private var _page = 1
-    private val tag = "MovieViewModel"
+    private val tag = "MovieResultsViewModel"
     private val _repository = repository
     private val _movies = MutableLiveData<List<Movie>>()
     val movies : MutableLiveData<List<Movie>> = _movies
@@ -44,13 +44,13 @@ class MovieViewModel(repository: MovieRepository) : ViewModel() {
     }
 }
 
-class MovieViewModelFactory(
+class MovieResultsViewModelFactory(
     private val repository: MovieRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MovieViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MovieResultsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MovieViewModel(repository) as T
+            return MovieResultsViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

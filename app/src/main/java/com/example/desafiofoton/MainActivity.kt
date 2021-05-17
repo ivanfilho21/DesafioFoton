@@ -16,12 +16,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.desafiofoton.adapters.MovieAdapter
 import com.example.desafiofoton.models.Movie
 import com.example.desafiofoton.repository.MovieRepository
+import com.example.desafiofoton.viewmodel.MovieResultsViewModel
 import com.example.desafiofoton.viewmodel.MovieViewModel
-import com.example.desafiofoton.viewmodel.MovieViewModelFactory
+import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
 
 class MainActivity : AppCompatActivity() {
     private val movieList = ArrayList<Movie?>()
-    private lateinit var viewModel : MovieViewModel
+    private lateinit var viewModel : MovieResultsViewModel
 
     private lateinit var loadMore : Button
     private lateinit var progressBar: ProgressBar
@@ -64,8 +65,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            MovieViewModelFactory(MovieRepository())).get(MovieViewModel::class.java
-        )
+            MovieResultsViewModelFactory(MovieRepository())
+        ).get(MovieResultsViewModel::class.java)
 
         viewModel.movies.observe(this, Observer { list ->
             progressBar.visibility = View.GONE
