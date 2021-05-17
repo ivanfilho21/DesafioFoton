@@ -3,30 +3,26 @@ package com.example.desafiofoton
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.desafiofoton.adapters.MovieAdapter
-import com.example.desafiofoton.interfaces.Endpoint
 import com.example.desafiofoton.models.Movie
-import com.example.desafiofoton.models.MovieResults
-import com.example.desafiofoton.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.desafiofoton.repository.MovieRepository
+import com.example.desafiofoton.viewmodel.MovieViewModel
+import com.example.desafiofoton.viewmodel.MovieViewModelFactory
 
 class MainActivity : AppCompatActivity() {
     private val movieList = ArrayList<Movie?>()
-    private val tag = "MainActivity"
+    private lateinit var viewModel : MovieViewModel
 
-    private var currentPage = 1
     private lateinit var loadMore : Button
     private lateinit var progressBar: ProgressBar
     private lateinit var recyclerView: RecyclerView
@@ -36,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //
         loadMore = findViewById(R.id.load_more)
         progressBar = findViewById(R.id.progressbar)
         recyclerView = findViewById(R.id.movie_list)
@@ -44,11 +41,11 @@ class MainActivity : AppCompatActivity() {
         loadMore.visibility = View.GONE
 
         initRecyclerView()
-        getMovies()
 
-        loadMore.setOnClickListener {
-            currentPage++
-            getMovies()
+        loadMore.setOnClickListener { view ->
+            view.isEnabled = false
+            viewModel.incrementPage()
+            viewModel.updateMovies()
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -61,9 +58,25 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
             override fun onQueryTextChange(newText: String): Boolean {
-//                adapter.filter.filter(newText)
                 return false
             }
+        })
+
+        viewModel = ViewModelProvider(
+            this,
+            MovieViewModelFactory(MovieRepository())).get(MovieViewModel::class.java
+        )
+
+        viewModel.movies.observe(this, Observer { list ->
+            progressBar.visibility = View.GONE
+            loadMore.visibility = View.VISIBLE
+            loadMore.isEnabled = true
+
+            list.forEach {
+                movieList.add(it)
+            }
+
+            recyclerView.adapter?.notifyDataSetChanged()
         })
     }
 
@@ -75,44 +88,11 @@ class MainActivity : AppCompatActivity() {
         // provides basic animations on remove, add, and move events
         recyclerView.itemAnimator = DefaultItemAnimator()
 
-
+        //
         recyclerAdapter = MovieAdapter(movieList)
 
         // now adding the adapter to recyclerview
         recyclerView.adapter = recyclerAdapter
-    }
-
-    private fun getMovies() {
-        val client = NetworkUtils.getRetrofitInstance("https://api.themoviedb.org")
-        val endpoint = client.create(Endpoint::class.java)
-
-        println("CURRENT PAGE $currentPage")
-        val listCallback = endpoint.getPopularMovies(currentPage)
-
-        loadMore.isEnabled = false
-        progressBar.visibility = View.VISIBLE
-
-        listCallback.enqueue(object : Callback<MovieResults> {
-            override fun onFailure(call: Call<MovieResults>, t: Throwable) {
-                Log.e(tag, "${t.message}")
-
-                progressBar.visibility = View.GONE
-                loadMore.visibility = View.VISIBLE
-                loadMore.isEnabled = true
-            }
-
-            override fun onResponse(call: Call<MovieResults>, response: Response<MovieResults>) {
-                response.body()?.results?.forEach {
-                    movieList.add(it)
-                }
-
-                recyclerAdapter.notifyDataSetChanged()
-
-                progressBar.visibility = View.GONE
-                loadMore.visibility = View.VISIBLE
-                loadMore.isEnabled = true
-            }
-        })
     }
 
 }
