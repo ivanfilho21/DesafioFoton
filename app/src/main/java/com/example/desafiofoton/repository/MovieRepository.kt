@@ -13,4 +13,6 @@ class MovieRepository {
     fun get(id : Int): Call<Movie> = endpoint.getMovie(id)
 
     fun getPopular(page: Int): Call<MovieResults> = endpoint.getPopularMovies(page)
+
+    fun getSearch(query: String, page: Int): Call<MovieResults> = endpoint.search(query)
 }
