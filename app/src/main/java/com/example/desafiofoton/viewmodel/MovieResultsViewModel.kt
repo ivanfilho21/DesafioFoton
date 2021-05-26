@@ -1,20 +1,21 @@
 package com.example.desafiofoton.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.desafiofoton.models.Movie
-import com.example.desafiofoton.models.MovieResults
-import com.example.desafiofoton.repository.MovieRepository
+import com.example.desafiofoton.repository.MovieRepositoryInterface
+import com.example.desafiofoton.repository.MovieRepositoryResult
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
+class MovieResultsViewModel(repository: MovieRepositoryInterface) : ViewModel() {
     private var _page = 1
     private val tag = "MovieResultsViewModel"
     private val _repository = repository
     private val _movies = MutableLiveData<List<Movie>>()
+    val page = _page
     val movies : MutableLiveData<List<Movie>> = _movies
 
     init {
@@ -24,19 +25,16 @@ class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
     }
 
     fun updateMovies() {
-        _repository.getPopular(_page).enqueue(object : Callback<MovieResults> {
-            override fun onResponse(
-                call: Call<MovieResults>,
-                response: Response<MovieResults>
-            ) {
-                val res = response.body() ?: return
-                movies.value = res.results
+        _repository.getPopular(_page) { movieResults ->
+            when (movieResults) {
+                is MovieRepositoryResult.Success -> {
+                    movies.value = movieResults.result.results
+                }
+                is MovieRepositoryResult.Error -> {
+                    Log.e(tag, "Error loading popular movies.")
+                }
             }
-
-            override fun onFailure(call: Call<MovieResults>, t: Throwable) {
-                Log.e(tag, "Error loading popular movies.")
-            }
-        })
+        }
     }
 
     fun incrementPage() {
@@ -45,7 +43,7 @@ class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
 }
 
 class MovieResultsViewModelFactory(
-    private val repository: MovieRepository
+    private val repository: MovieRepositoryInterface
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MovieResultsViewModel::class.java)) {
