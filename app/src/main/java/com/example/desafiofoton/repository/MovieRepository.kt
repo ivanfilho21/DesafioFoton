@@ -12,9 +12,18 @@ class MovieRepository : MovieRepositoryInterface {
     private val client = NetworkUtils.getRetrofitInstance("https://api.themoviedb.org")
     private val endpoint = client.create(Endpoint::class.java)
 
-    fun get(id : Int): Call<Movie> = endpoint.getMovie(id)
+    override fun get(page: Int, callback: (result: MovieRepositoryResult) -> Unit) {
+        endpoint.getMovie(page).enqueue(object : Callback<Movie> {
+            override fun onResponse(call: Call<Movie>, response: Response<Movie>) {
+                val movie = response.body() ?: return
+                callback(MovieRepositoryResult.Success(MovieResults(0, 0, listOf(movie))))
+            }
 
-    fun getPopular(page: Int): Call<MovieResults> = endpoint.getPopularMovies(page)
+            override fun onFailure(call: Call<Movie>, t: Throwable) {
+                callback(MovieRepositoryResult.Error())
+            }
+        })
+    }
 
     override fun getPopular(page: Int, callback: (result: MovieRepositoryResult) -> Unit) {
         endpoint.getPopularMovies(page).enqueue(object : Callback<MovieResults> {
@@ -24,7 +33,7 @@ class MovieRepository : MovieRepositoryInterface {
             }
 
             override fun onFailure(call: Call<MovieResults>, t: Throwable) {
-                TODO("Not yet implemented")
+                callback(MovieRepositoryResult.Error())
             }
         })
     }
