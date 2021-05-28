@@ -17,7 +17,6 @@ import com.example.desafiofoton.adapters.MovieAdapter
 import com.example.desafiofoton.models.Movie
 import com.example.desafiofoton.repository.MovieRepository
 import com.example.desafiofoton.viewmodel.MovieResultsViewModel
-import com.example.desafiofoton.viewmodel.MovieViewModel
 import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
 
 class MainActivity : AppCompatActivity() {
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         loadMore.setOnClickListener { view ->
             view.isEnabled = false
             viewModel.incrementPage()
-            viewModel.updateMovies()
+            viewModel.fetchPopularMovies()
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -67,6 +66,8 @@ class MainActivity : AppCompatActivity() {
             this,
             MovieResultsViewModelFactory(MovieRepository())
         ).get(MovieResultsViewModel::class.java)
+
+        viewModel.fetchPopularMovies()
 
         viewModel.movies.observe(this, Observer { list ->
             progressBar.visibility = View.GONE

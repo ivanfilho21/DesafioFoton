@@ -26,7 +26,15 @@ class MovieRepository : MovieRepositoryInterface {
     }
 
     override fun getPopular(page: Int, callback: (result: MovieRepositoryResult) -> Unit) {
-        endpoint.getPopularMovies(page).enqueue(object : Callback<MovieResults> {
+        handleMovieResults(endpoint.getPopularMovies(page), callback)
+    }
+
+    override fun search(query: String, callback: (result: MovieRepositoryResult) -> Unit) {
+        handleMovieResults(endpoint.search(query), callback)
+    }
+
+    private fun handleMovieResults(call: Call<MovieResults>, callback: (result: MovieRepositoryResult) -> Unit) {
+        call.enqueue(object : Callback<MovieResults> {
             override fun onResponse(call: Call<MovieResults>, response: Response<MovieResults>) {
                 val results = response.body() ?: return
                 callback(MovieRepositoryResult.Success(results))

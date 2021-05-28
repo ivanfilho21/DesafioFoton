@@ -19,27 +19,31 @@ class MovieResultsViewModel(repository: MovieRepositoryInterface) : ViewModel() 
     val page get() = _page
     val movies : MutableLiveData<List<Movie>> = _movies
 
-    init {
-        viewModelScope.launch {
-            updateMovies()
+    fun fetchPopularMovies() {
+        _repository.getPopular(_page) {
+            handleResult(it)
         }
     }
 
-    fun updateMovies() {
-        _repository.getPopular(_page) { movieResults ->
-            when (movieResults) {
-                is MovieRepositoryResult.Success -> {
-                    movies.value = movieResults.result.results
-                }
-                is MovieRepositoryResult.Error -> {
-                    Log.e(tag, "Error loading popular movies.")
-                }
-            }
+    fun searchMovies(query: String) {
+        _repository.search(query) {
+            handleResult(it)
         }
     }
 
     fun incrementPage() {
         _page++
+    }
+
+    private fun handleResult(movieResults: MovieRepositoryResult) {
+        when (movieResults) {
+            is MovieRepositoryResult.Success -> {
+                movies.value = movieResults.result.results
+            }
+            is MovieRepositoryResult.Error -> {
+                Log.e(tag, "Error loading popular movies.")
+            }
+        }
     }
 }
 

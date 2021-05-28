@@ -64,7 +64,21 @@ class ExampleUnitTest {
         val vm = getMovieResultsViewModel()
 
         // When
-        vm.updateMovies()
+        vm.fetchPopularMovies()
+
+        // Then
+        vm.movies.observeForever {
+            Assert.assertNotNull(it)
+        }
+    }
+
+    @Test
+    fun shouldSearchMoviesWhenQueryIsNotEmpty() {
+        // Given
+        val vm = getMovieResultsViewModel()
+
+        // When
+        vm.searchMovies("test")
 
         // Then
         vm.movies.observeForever {
@@ -92,6 +106,14 @@ class ExampleUnitTest {
                 MovieResults(page + 1, page, listOf(
                     Movie(1, "Movie 1", "", "", 62, "", listOf()),
                     Movie(2, "Movie 2", "", "", 78, "", listOf()),
+                ))
+            ))
+        }
+
+        override fun search(query: String, callback: (result: MovieRepositoryResult) -> Unit) {
+            callback(MovieRepositoryResult.Success(
+                MovieResults(1, 1, listOf(
+                    Movie(3, "Movie 3", "", "", 90, "", listOf())
                 ))
             ))
         }
