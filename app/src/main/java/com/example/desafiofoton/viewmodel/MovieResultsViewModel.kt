@@ -11,11 +11,12 @@ import com.example.desafiofoton.repository.MovieRepositoryResult
 import kotlinx.coroutines.launch
 
 class MovieResultsViewModel(repository: MovieRepositoryInterface) : ViewModel() {
-    private var _page = 1
     private val tag = "MovieResultsViewModel"
     private val _repository = repository
     private val _movies = MutableLiveData<List<Movie>>()
-    val page = _page
+    private var _page: Int = 1
+
+    val page get() = _page
     val movies : MutableLiveData<List<Movie>> = _movies
 
     init {
