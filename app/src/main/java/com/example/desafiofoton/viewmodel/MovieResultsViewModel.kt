@@ -39,6 +39,19 @@ class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
         })
     }
 
+    fun searchMovies(query: String) {
+        _repository.search(query).enqueue(object : Callback<MovieResults> {
+            override fun onResponse(call: Call<MovieResults>, response: Response<MovieResults>) {
+                val res = response.body() ?: return
+                movies.value = res.results
+            }
+
+            override fun onFailure(call: Call<MovieResults>, t: Throwable) {
+                Log.e(tag, "Error searching movies.")
+            }
+        })
+    }
+
     fun incrementPage() {
         _page++
     }
