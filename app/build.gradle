@@ -42,7 +42,7 @@ android {
 
 dependencies {
     // DataBinding
-    kapt "com.android.databinding:compiler:3.2.0-alpha10"
+    kapt "com.android.databinding:compiler:3.1.4"
 
     implementation "org.androidannotations:androidannotations-api:4.8.0"
     api 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha01'
