@@ -17,12 +17,6 @@ class MovieResultsViewModel(repository: MovieRepository) : ViewModel() {
     private val _movies = MutableLiveData<List<Movie>>()
     val movies : MutableLiveData<List<Movie>> = _movies
 
-    init {
-        viewModelScope.launch {
-            updateMovies()
-        }
-    }
-
     fun updateMovies() {
         _repository.getPopular(_page).enqueue(object : Callback<MovieResults> {
             override fun onResponse(
