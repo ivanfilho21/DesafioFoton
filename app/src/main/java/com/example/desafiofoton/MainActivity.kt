@@ -1,5 +1,6 @@
 package com.example.desafiofoton
 
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +17,10 @@ import com.example.desafiofoton.models.Movie
 import com.example.desafiofoton.repository.MovieRepository
 import com.example.desafiofoton.viewmodel.MovieResultsViewModel
 import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
+import org.androidannotations.annotations.EActivity
 
+@SuppressLint("NonConstantResourceId")
+@EActivity(R.layout.activity_main)
 class MainActivity : AppCompatActivity() {
     private val binding : ActivityMainBinding by lazy {
         DataBindingUtil.setContentView<ActivityMainBinding>(
