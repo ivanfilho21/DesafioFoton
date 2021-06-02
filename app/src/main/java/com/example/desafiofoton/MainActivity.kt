@@ -58,6 +58,8 @@ class MainActivity : AppCompatActivity() {
             MovieResultsViewModelFactory(MovieRepository())
         ).get(MovieResultsViewModel::class.java)
 
+        viewModel.updateMovies()
+
         viewModel.movies.observe(this, { list ->
             binding.progressbar.visibility = View.GONE
             binding.loadMore.visibility = View.VISIBLE
