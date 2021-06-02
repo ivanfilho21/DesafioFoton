@@ -4,52 +4,42 @@ import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.Observer
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.desafiofoton.adapters.MovieAdapter
+import com.example.desafiofoton.databinding.ActivityMainBinding
 import com.example.desafiofoton.models.Movie
 import com.example.desafiofoton.repository.MovieRepository
 import com.example.desafiofoton.viewmodel.MovieResultsViewModel
-import com.example.desafiofoton.viewmodel.MovieViewModel
 import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
 
 class MainActivity : AppCompatActivity() {
+    private val binding : ActivityMainBinding by lazy {
+        DataBindingUtil.setContentView<ActivityMainBinding>(
+            this, R.layout.activity_main
+        ).apply {
+            this.lifecycleOwner = this@MainActivity
+//            this.viewModel = viewModel
+        }
+    }
+    private lateinit var recyclerAdapter: MovieAdapter
+
     private val movieList = ArrayList<Movie?>()
     private lateinit var viewModel : MovieResultsViewModel
 
-    private lateinit var loadMore : Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var recyclerAdapter: MovieAdapter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
 
-        //
-        loadMore = findViewById(R.id.load_more)
-        progressBar = findViewById(R.id.progressbar)
-        recyclerView = findViewById(R.id.movie_list)
-        val searchView = findViewById<SearchView>(R.id.search_view)
-
-        loadMore.visibility = View.GONE
+        binding.loadMore.visibility = View.GONE
 
         initRecyclerView()
 
-        loadMore.setOnClickListener { view ->
-            view.isEnabled = false
-            viewModel.incrementPage()
-            viewModel.updateMovies()
-        }
-
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 intent = Intent(applicationContext, SearchableActivity::class.java).apply {
                     action = Intent.ACTION_SEARCH
@@ -68,32 +58,42 @@ class MainActivity : AppCompatActivity() {
             MovieResultsViewModelFactory(MovieRepository())
         ).get(MovieResultsViewModel::class.java)
 
-        viewModel.movies.observe(this, Observer { list ->
-            progressBar.visibility = View.GONE
-            loadMore.visibility = View.VISIBLE
-            loadMore.isEnabled = true
+        viewModel.movies.observe(this, { list ->
+            binding.progressbar.visibility = View.GONE
+            binding.loadMore.visibility = View.VISIBLE
+            binding.loadMore.isEnabled = true
 
             list.forEach {
                 movieList.add(it)
             }
 
-            recyclerView.adapter?.notifyDataSetChanged()
+            binding.movieRv.adapter?.notifyDataSetChanged()
         })
+
+        binding.loadMore.setOnClickListener {
+            loadMore()
+        }
     }
 
     private fun initRecyclerView() {
         // Sets grid layout
-        recyclerView.layoutManager = GridLayoutManager(this, 3)
-        recyclerView.setHasFixedSize(true)
+        binding.movieRv.layoutManager = GridLayoutManager(this, 3)
+        binding.movieRv.setHasFixedSize(true)
 
         // provides basic animations on remove, add, and move events
-        recyclerView.itemAnimator = DefaultItemAnimator()
+        binding.movieRv.itemAnimator = DefaultItemAnimator()
 
         //
         recyclerAdapter = MovieAdapter(movieList)
 
         // now adding the adapter to recyclerview
-        recyclerView.adapter = recyclerAdapter
+        binding.movieRv.adapter = recyclerAdapter
+    }
+
+    fun loadMore() {
+        binding.loadMore.isEnabled = false
+        viewModel.incrementPage()
+        viewModel.updateMovies()
     }
 
 }
