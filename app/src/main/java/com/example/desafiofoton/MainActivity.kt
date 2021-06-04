@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -15,6 +19,7 @@ import com.example.desafiofoton.adapters.MovieAdapter
 import com.example.desafiofoton.databinding.ActivityMainBinding
 import com.example.desafiofoton.models.Movie
 import com.example.desafiofoton.repository.MovieRepository
+import com.example.desafiofoton.utils.DialogUtils
 import com.example.desafiofoton.viewmodel.MovieResultsViewModel
 import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
 import org.androidannotations.annotations.EActivity
@@ -38,6 +43,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         binding.loadMore.visibility = View.GONE
 
@@ -81,6 +89,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_info -> {
+                DialogUtils.showDialogWarning(this)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun initRecyclerView() {
         // Sets grid layout
         binding.movieRv.layoutManager = GridLayoutManager(this, 3)
@@ -96,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         binding.movieRv.adapter = recyclerAdapter
     }
 
-    fun loadMore() {
+    private fun loadMore() {
         binding.loadMore.isEnabled = false
         viewModel.incrementPage()
         viewModel.updateMovies()
