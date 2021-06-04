@@ -7,4 +7,5 @@
     <string name="search_hint">Nome do Filme</string>
     <string name="label_genre">Gênero</string>
     <string name="label_search">Busca</string>
+    <string name="menu_about">Sobre</string>
 </resources>
