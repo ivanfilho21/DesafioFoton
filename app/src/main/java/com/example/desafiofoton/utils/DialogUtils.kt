@@ -15,14 +15,11 @@ class DialogUtils {
         fun showDialogWarning(context: Context) {
             val contentView = LayoutInflater.from(context).inflate(R.layout.dialog_warning, null)
             showDialog(context, contentView, false) { dialog: AlertDialog, id: Int ->
-                when (id) {
+                /*when (id) {
                     R.id.ok_button -> {
                         Toast.makeText(context, "All Right!", Toast.LENGTH_SHORT).show()
                     }
-                    R.id.cancel_button -> {
-                        Toast.makeText(context, "Canceled!", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                }*/
                 dialog.dismiss()
             }
         }

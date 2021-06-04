@@ -15,6 +15,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="12dp"
         android:gravity="center"
-        android:text="Aviso!" />
+        android:text="@string/msg_warning"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/msg_about" />
 </LinearLayout>

@@ -8,4 +8,5 @@
     <string name="label_genre">Gênero</string>
     <string name="label_search">Busca</string>
     <string name="menu_about">Sobre</string>
+    <string name="msg_about">Versão do APP: 1.0.0</string>
 </resources>
