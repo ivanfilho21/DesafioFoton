@@ -7,37 +7,36 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.desafiofoton.adapters.MovieAdapter
 import com.example.desafiofoton.databinding.ActivityMainBinding
+import com.example.desafiofoton.di.component.DaggerIHomeComponent
+import com.example.desafiofoton.di.module.HomeModule
 import com.example.desafiofoton.models.Movie
-import com.example.desafiofoton.repository.MovieRepository
-import com.example.desafiofoton.viewmodel.MovieResultsViewModel
-import com.example.desafiofoton.viewmodel.MovieResultsViewModelFactory
-import org.androidannotations.annotations.EActivity
+import com.example.desafiofoton.presenter.contract.IHomeContract
+import com.example.desafiofoton.utils.DialogUtils
+import javax.inject.Inject
 
 @SuppressLint("NonConstantResourceId")
-@EActivity(R.layout.activity_main)
-class MainActivity : AppCompatActivity() {
-    private val binding : ActivityMainBinding by lazy {
-        DataBindingUtil.setContentView<ActivityMainBinding>(
-            this, R.layout.activity_main
-        ).apply {
-            this.lifecycleOwner = this@MainActivity
-//            this.viewModel = viewModel
-        }
-    }
+class MainActivity : AppCompatActivity(), IHomeContract.IHomeView {
+    @Inject
+    lateinit var presenter: IHomeContract.IHomePresenter
+
+    private lateinit var binding : ActivityMainBinding
     private lateinit var recyclerAdapter: MovieAdapter
 
     private val movieList = ArrayList<Movie?>()
-    private lateinit var viewModel : MovieResultsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        DaggerIHomeComponent.builder()
+            .homeModule(HomeModule(this))
+            .build()
+            .inject(this)
 
         binding.loadMore.visibility = View.GONE
 
@@ -57,24 +56,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel = ViewModelProvider(
-            this,
-            MovieResultsViewModelFactory(MovieRepository())
-        ).get(MovieResultsViewModel::class.java)
-
-        viewModel.updateMovies()
-
-        viewModel.movies.observe(this, { list ->
-            binding.progressbar.visibility = View.GONE
-            binding.loadMore.visibility = View.VISIBLE
-            binding.loadMore.isEnabled = true
-
-            list.forEach {
-                movieList.add(it)
-            }
-
-            binding.movieRv.adapter?.notifyDataSetChanged()
-        })
+        loadMore()
 
         binding.loadMore.setOnClickListener {
             loadMore()
@@ -96,10 +78,33 @@ class MainActivity : AppCompatActivity() {
         binding.movieRv.adapter = recyclerAdapter
     }
 
-    fun loadMore() {
+    private fun loadMore() {
         binding.loadMore.isEnabled = false
-        viewModel.incrementPage()
-        viewModel.updateMovies()
+        presenter.getPopular()
+    }
+
+    private fun preencherLista() {
+        binding.progressbar.visibility = View.GONE
+        binding.loadMore.visibility = View.VISIBLE
+        binding.loadMore.isEnabled = true
+
+        binding.movieRv.adapter?.notifyDataSetChanged()
+    }
+
+    override fun onSucess(movies: List<Movie>?) {
+        movies?.let { list ->
+            list.forEach {
+                movieList.add(it)
+            }
+        }
+
+        runOnUiThread {
+            preencherLista()
+        }
+    }
+
+    override fun onError() {
+        DialogUtils.alertMessage(this, "Ocorreu um problema ao recuperar a lista de filmes. Tente novamente mais tarde.")
     }
 
 }
